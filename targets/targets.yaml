@@ -1,0 +1,128 @@
+# NetScope — Target list
+# Start with ~20 targets. Expand as needed.
+# Be respectful: normal HTTP/DNS/TCP at ~30s intervals, no aggressive scanning.
+
+targets:
+
+  # --- Global tech / CDN ---
+  - id: github-com
+    host: github.com
+    scheme: https
+    path: /
+    tags: [global, tech, git]
+
+  - id: google-com
+    host: google.com
+    scheme: https
+    path: /
+    tags: [global, search, cdn]
+
+  - id: cloudflare-com
+    host: cloudflare.com
+    scheme: https
+    path: /
+    tags: [global, cdn, networking]
+
+  - id: wikipedia-org
+    host: wikipedia.org
+    scheme: https
+    path: /
+    tags: [global, content]
+
+  - id: amazon-com
+    host: amazon.com
+    scheme: https
+    path: /
+    tags: [global, ecommerce, aws]
+
+  - id: stackoverflow-com
+    host: stackoverflow.com
+    scheme: https
+    path: /
+    tags: [global, dev]
+
+  # --- APIs ---
+  - id: httpbin-org
+    host: httpbin.org
+    scheme: https
+    path: /get
+    tags: [api, test]
+
+  - id: api-github-com
+    host: api.github.com
+    scheme: https
+    path: /
+    tags: [api, github]
+
+  # --- CDN / DNS benchmarks ---
+  - id: one-one-one-one
+    host: one.one.one.one
+    scheme: https
+    path: /
+    tags: [dns, cdn, cloudflare]
+
+  - id: dns-google-com
+    host: dns.google
+    scheme: https
+    path: /
+    tags: [dns, google]
+
+  # --- Indian websites ---
+  - id: irctc-co-in
+    host: www.irctc.co.in
+    scheme: https
+    path: /
+    tags: [india, government, rail]
+
+  - id: flipkart-com
+    host: www.flipkart.com
+    scheme: https
+    path: /
+    tags: [india, ecommerce]
+
+  - id: myntra-com
+    host: www.myntra.com
+    scheme: https
+    path: /
+    tags: [india, ecommerce]
+
+  - id: indiatimes-com
+    host: www.indiatimes.com
+    scheme: https
+    path: /
+    tags: [india, media]
+
+  - id: iitb-ac-in
+    host: www.iitb.ac.in
+    scheme: https
+    path: /
+    tags: [india, university]
+
+  - id: iitd-ac-in
+    host: home.iitd.ac.in
+    scheme: https
+    path: /
+    tags: [india, university]
+
+  # --- University / Academic ---
+  - id: mit-edu
+    host: www.mit.edu
+    scheme: https
+    path: /
+    tags: [university, us]
+
+  - id: arxiv-org
+    host: arxiv.org
+    scheme: https
+    path: /
+    tags: [academic, research]
+
+  # --- Our controlled test endpoint (inject failures here) ---
+  # Replace with actual deployed URL when available
+  - id: netscope-ctrl
+    host: localhost
+    scheme: http
+    path: /health
+    port: 8080
+    tags: [controlled, test, local]
+    notes: "Our own controlled endpoint. Use for failure injection experiments."
