@@ -1,6 +1,15 @@
-# NetScope — Target list
-# Start with ~20 targets. Expand as needed.
-# Be respectful: normal HTTP/DNS/TCP at ~30s intervals, no aggressive scanning.
+# targets.yaml — NetScope target list (Week 2 revision)
+#
+# Per-target config keys:
+#   id:        slug used as partition key and in file paths
+#   host:      hostname to measure
+#   scheme:    http | https
+#   path:      URL path (default /)
+#   port:      override default port
+#   timeout:   per-target timeout override in seconds (default 10)
+#   max_bytes: stop reading response after this many bytes (default 65536)
+#   enabled:   set false to skip without deleting
+#   tags:      list of labels for grouping/filtering
 
 targets:
 
@@ -61,35 +70,45 @@ targets:
     path: /
     tags: [dns, cdn, cloudflare]
 
+  # dns.google has consistent TLS issues from India — disabled pending investigation
   - id: dns-google-com
     host: dns.google
     scheme: https
     path: /
+    timeout: 15
+    enabled: false
     tags: [dns, google]
+    notes: "TLS_TIMEOUT observed consistently from india-01. Re-enable after investigation."
 
   # --- Indian websites ---
   - id: irctc-co-in
     host: www.irctc.co.in
     scheme: https
     path: /
+    timeout: 20          # IRCTC is slow; allow extra time
+    max_bytes: 32768     # cap response read
     tags: [india, government, rail]
+    notes: "HTTP_TIMEOUT at 10s. Increased to 20s."
 
   - id: flipkart-com
     host: www.flipkart.com
     scheme: https
     path: /
+    max_bytes: 65536     # was downloading ~1.1 MB; cap early
     tags: [india, ecommerce]
 
   - id: myntra-com
     host: www.myntra.com
     scheme: https
     path: /
+    max_bytes: 65536
     tags: [india, ecommerce]
 
   - id: indiatimes-com
     host: www.indiatimes.com
     scheme: https
     path: /
+    max_bytes: 65536
     tags: [india, media]
 
   - id: iitb-ac-in
@@ -117,12 +136,13 @@ targets:
     path: /
     tags: [academic, research]
 
-  # --- Our controlled test endpoint (inject failures here) ---
-  # Replace with actual deployed URL when available
+  # --- Our controlled test endpoint ---
+  # Inject failures here for Week 6 demo
   - id: netscope-ctrl
-    host: localhost
+    host: netscope-ctrl   # Docker service name, resolved inside compose network
     scheme: http
     path: /health
     port: 8080
+    enabled: false        # enable when controlled server is running
     tags: [controlled, test, local]
-    notes: "Our own controlled endpoint. Use for failure injection experiments."
+    notes: "Our own controlled endpoint for failure injection (Week 6)."

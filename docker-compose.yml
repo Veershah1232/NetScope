@@ -1,0 +1,140 @@
+# docker-compose.yml — NetScope Week 2
+#
+# Starts:
+#   - minio          : S3-compatible object storage
+#   - minio-init     : creates the netscope-raw bucket on startup
+#   - probe-india    : simulated India probe  (probe_id = india-01)
+#   - probe-sg       : simulated Singapore probe (probe_id = sg-01)
+#   - probe-eu       : simulated Europe probe (probe_id = eu-01)
+#
+# Usage:
+#   docker compose up -d minio minio-init
+#   docker compose up probe-india probe-sg probe-eu
+#
+# Access MinIO console: http://localhost:9001
+#   user: minioadmin  password: minioadmin
+#
+# NOTE: Real geographic diversity requires deploying probes to actual
+#       cloud VMs/VPS. These containers run on one machine and produce
+#       three probe identities, not real geographic measurements.
+
+version: "3.9"
+
+networks:
+  netscope:
+    driver: bridge
+
+volumes:
+  minio_data:
+
+services:
+
+  # -------------------------------------------------------------------------
+  # MinIO — S3-compatible object storage
+  # -------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: netscope-minio
+    networks: [netscope]
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web console
+    environment:
+      MINIO_ROOT_USER:     minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # -------------------------------------------------------------------------
+  # MinIO Init — creates the bucket once MinIO is healthy
+  # -------------------------------------------------------------------------
+  minio-init:
+    image: minio/mc:latest
+    container_name: netscope-minio-init
+    networks: [netscope]
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      sh -c "
+        mc alias set local http://minio:9000 minioadmin minioadmin &&
+        mc mb --ignore-existing local/netscope-raw &&
+        echo 'Bucket netscope-raw is ready.'
+      "
+
+  # -------------------------------------------------------------------------
+  # Probe — India identity
+  # Three identical service definitions, only PROBE_ID differs.
+  # In production, each would run on a separate cloud VM.
+  # -------------------------------------------------------------------------
+  probe-india:
+    build:
+      context: .
+      dockerfile: probe/Dockerfile
+    container_name: netscope-probe-india
+    networks: [netscope]
+    environment:
+      PROBE_ID:       india-01
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT:   /output/india-01.jsonl
+      MINIO_ENDPOINT:    http://minio:9000
+      MINIO_ACCESS_KEY:  minioadmin
+      MINIO_SECRET_KEY:  minioadmin
+      MINIO_BUCKET:      netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  probe-sg:
+    build:
+      context: .
+      dockerfile: probe/Dockerfile
+    container_name: netscope-probe-sg
+    networks: [netscope]
+    environment:
+      PROBE_ID:       sg-01
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT:   /output/sg-01.jsonl
+      MINIO_ENDPOINT:    http://minio:9000
+      MINIO_ACCESS_KEY:  minioadmin
+      MINIO_SECRET_KEY:  minioadmin
+      MINIO_BUCKET:      netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+
+  probe-eu:
+    build:
+      context: .
+      dockerfile: probe/Dockerfile
+    container_name: netscope-probe-eu
+    networks: [netscope]
+    environment:
+      PROBE_ID:       eu-01
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT:   /output/eu-01.jsonl
+      MINIO_ENDPOINT:    http://minio:9000
+      MINIO_ACCESS_KEY:  minioadmin
+      MINIO_SECRET_KEY:  minioadmin
+      MINIO_BUCKET:      netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
