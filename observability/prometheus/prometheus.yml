@@ -1,0 +1,18 @@
+# observability/prometheus/prometheus.yml
+# NetScope Platform Scraping Configuration
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "netscope-metrics"
+    static_configs:
+      - targets: ["host.docker.internal:9102"]
+        labels:
+          platform: "netscope"
+          environment: "local"
+
+  - job_name: "clickhouse"
+    static_configs:
+      - targets: ["clickhouse:8123"]

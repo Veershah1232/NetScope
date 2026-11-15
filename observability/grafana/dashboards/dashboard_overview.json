@@ -1,0 +1,77 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Total Measurements Captured",
+      "type": "stat",
+      "targets": [
+        { "expr": "sum(netscope_measurements_total)", "legendFormat": "Measurements" }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "title": "Active Probes",
+      "type": "stat",
+      "targets": [
+        { "expr": "count(netscope_probe_health_status == 1)", "legendFormat": "Active Probes" }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "title": "Active Incidents",
+      "type": "stat",
+      "targets": [
+        { "expr": "sum(netscope_active_incidents)", "legendFormat": "Open Incidents" }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "title": "Kafka Consumer Lag",
+      "type": "stat",
+      "targets": [
+        { "expr": "sum(netscope_kafka_consumer_lag)", "legendFormat": "Total Lag" }
+      ]
+    },
+    {
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "id": 5,
+      "title": "Stream Window p95 Latency by Target",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "netscope_flink_window_p95_ms", "legendFormat": "{{target_id}} ({{probe_id}})" }
+      ]
+    },
+    {
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "id": 6,
+      "title": "Target Availability (%)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "netscope_flink_window_availability_pct", "legendFormat": "{{target_id}}" }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["netscope", "overview"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "NetScope Global Overview",
+  "version": 1
+}

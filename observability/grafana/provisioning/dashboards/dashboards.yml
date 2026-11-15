@@ -1,0 +1,13 @@
+# observability/grafana/provisioning/dashboards/dashboards.yml
+apiVersion: 1
+
+providers:
+  - name: 'NetScope Dashboards'
+    orgId: 1
+    folder: 'NetScope Telemetry'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
