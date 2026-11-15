@@ -26,6 +26,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from schemas.measurement import Measurement, ProbeHeartbeat
+from ingestion.producers.kafka_producer import NetScopeKafkaProducer
 
 logger = logging.getLogger("netscope.probe")
 
@@ -237,6 +238,7 @@ def run_sweep(
     default_timeout: float = DEFAULT_TIMEOUT_S,
     default_max_bytes: int = DEFAULT_MAX_BYTES,
     output_file: Optional[str] = None,
+    kafka_producer: Optional[NetScopeKafkaProducer] = None,
 ) -> list[Measurement]:
     results: list[Measurement] = []
 
@@ -271,8 +273,15 @@ def run_sweep(
         results.append(m)
         _print_measurement(m)
 
+        record_dict = m.to_dict()
         if output_file:
-            _append_jsonl(output_file, m.to_dict())
+            _append_jsonl(output_file, record_dict)
+
+        if kafka_producer:
+            kafka_producer.send_measurement(record_dict)
+
+    if kafka_producer:
+        kafka_producer.flush()
 
     return results
 
@@ -311,6 +320,7 @@ def emit_heartbeat(
     measurements_sent: int,
     failed: int,
     output_file: Optional[str] = None,
+    kafka_producer: Optional[NetScopeKafkaProducer] = None,
 ) -> ProbeHeartbeat:
     hb = ProbeHeartbeat(
         probe_id=probe_id,
@@ -318,8 +328,12 @@ def emit_heartbeat(
         failed_measurements=failed,
     )
     logger.info("HEARTBEAT: %s", json.dumps(hb.to_dict()))
+    hb_dict = hb.to_dict()
     if output_file:
-        _append_jsonl(output_file, {"_type": "heartbeat", **hb.to_dict()})
+        _append_jsonl(output_file, {"_type": "heartbeat", **hb_dict})
+    if kafka_producer:
+        kafka_producer.send_heartbeat(hb_dict)
+        kafka_producer.flush()
     return hb
 
 
@@ -336,6 +350,7 @@ def main() -> None:
     parser.add_argument("--timeout",      type=float, default=DEFAULT_TIMEOUT_S)
     parser.add_argument("--max-bytes",    type=int,   default=DEFAULT_MAX_BYTES)
     parser.add_argument("--output",       default=os.environ.get("PROBE_OUTPUT", ""))
+    parser.add_argument("--kafka-bootstrap", default=os.environ.get("KAFKA_BOOTSTRAP_SERVERS", ""))
     parser.add_argument("--log-level",    default="INFO",
                         choices=["DEBUG", "INFO", "WARNING", "ERROR"])
     args = parser.parse_args()
@@ -344,6 +359,14 @@ def main() -> None:
         level=getattr(logging, args.log_level),
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
+
+    kafka_producer = None
+    if args.kafka_bootstrap:
+        logger.info("Enabling Kafka publisher on %s", args.kafka_bootstrap)
+        kafka_producer = NetScopeKafkaProducer(
+            bootstrap_servers=args.kafka_bootstrap,
+            client_id=f"probe-{args.probe_id}",
+        )
 
     if args.target:
         targets = load_targets_from_hosts([args.target])
@@ -371,6 +394,7 @@ def main() -> None:
             default_timeout=args.timeout,
             default_max_bytes=args.max_bytes,
             output_file=output,
+            kafka_producer=kafka_producer,
         )
 
         sent   = len(results)
@@ -378,7 +402,13 @@ def main() -> None:
         total_sent   += sent
         total_failed += failed
 
-        emit_heartbeat(args.probe_id, total_sent, total_failed, output_file=output)
+        emit_heartbeat(
+            args.probe_id,
+            total_sent,
+            total_failed,
+            output_file=output,
+            kafka_producer=kafka_producer,
+        )
 
         if args.interval <= 0:
             break
