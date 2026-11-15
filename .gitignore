@@ -29,8 +29,10 @@ credentials.json
 # Data / output (large files)
 results/
 data/
+benchmarks/storage_results/
 *.jsonl
 *.parquet
+*.csv
 *.csv.gz
 
 # IDE
