@@ -25,8 +25,33 @@ networks:
 volumes:
   minio_data:
   kafka_data:
+  clickhouse_data:
 
 services:
+
+  # -------------------------------------------------------------------------
+  # ClickHouse Analytical Warehouse (OLAP Engine)
+  # -------------------------------------------------------------------------
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    container_name: netscope-clickhouse
+    networks: [netscope]
+    ports:
+      - "8123:8123"   # HTTP REST / Web interface
+      - "9009:9000"   # Native TCP protocol mapped to host 9009 (avoids MinIO 9000 conflict)
+    environment:
+      CLICKHOUSE_DB: netscope
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./warehouse/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # -------------------------------------------------------------------------
   # Apache Kafka in KRaft mode (No Zookeeper dependency)
