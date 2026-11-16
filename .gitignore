@@ -11,6 +11,9 @@ dist/
 build/
 .eggs/
 *.whl
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Virtual environments
 venv/

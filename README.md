@@ -23,12 +23,12 @@ The platform provides:
 ## 2. End-to-End Architecture
 
 ```
-                         DISTRIBUTED INTERNET TARGETS
+                   50 BALANCED TARGETS (15 targets/probe, max 3 probes/target)
                                        │
                   ┌────────────────────┼────────────────────┐
                   ▼                    ▼                    ▼
-               Probe IN             Probe SG             Probe EU
-              (india-01)            (sg-01)              (eu-01)
+               Probe 01             Probe 02    ...      Probe 10
+              (probe-01)           (probe-02)           (probe-10)
                   │                    │                    │
                   ├────────────────────┼────────────────────┤
                   │     Traceroute & Route Signature Hash   │
@@ -212,7 +212,18 @@ DE Project/
 │   ├── storage_shootout.py           # 50,000-row format shootout (Parquet vs CSV vs JSONL)
 │   └── stress_test.py                # High-throughput Kafka producer stress test
 │
+├── docs/                             # Complete System & Architectural Documentation
+│   ├── ARCHITECTURE.md               # End-to-end data flow, event-time, lakehouse & storage model
+│   ├── PROBE_ENGINE.md               # Active probing protocols, socket timeouts, target sharding
+│   ├── INGESTION_STREAMING.md        # Kafka KRaft, partitioning, Flink watermarks & window aggregations
+│   ├── STORAGE_WAREHOUSE.md          # Parquet Hive layout, ClickHouse schema, codecs & OLAP benchmarks
+│   ├── ANOMALY_INCIDENTS.md          # Rolling Z-scores, multi-signal scoring, 4-state incident FSM
+│   ├── OBSERVABILITY_OPERATIONS.md   # Prometheus, Grafana, NetScope Web UI, operations & fleet guide
+│   └── API_REFERENCE.md              # Complete function, class, and module-level code reference
+│
 ├── scripts/
+│   ├── run_telemetry_pipeline.py     # Continuous Kafka-to-ClickHouse/MinIO pipeline & Web UI launcher
+│   ├── web_ui.py                     # NetScope Telemetry Explorer (Flask dashboard on port 8050)
 │   ├── final_presentation.py         # 18-step master end-to-end presentation orchestrator
 │   ├── test_005_kafka_recovery.py    # TEST-005 Kafka lag & recovery experiment
 │   ├── test_014_fault_tolerance.py   # 5-scenario platform fault tolerance verification
@@ -221,7 +232,7 @@ DE Project/
 │   ├── demo_week7_geographic_traceroute.py # Week 7 geographic & traceroute demo
 │   └── sweep_and_stats.py            # Multi-round target sweep & percentile reporter
 │
-├── docker-compose.yml                # Kafka (KRaft), MinIO, ClickHouse, Prometheus, Grafana
+├── docker-compose.yml                # 10 Probes, Kafka (KRaft), MinIO, ClickHouse, Prometheus, Grafana
 └── README.md
 ```
 
@@ -233,9 +244,9 @@ DE Project/
 - Python 3.11+
 - Docker Desktop with WSL2 backend (Windows / Linux / macOS)
 
-### 1. Launch All Infrastructure Services
+### 1. Launch Core Infrastructure Services
 ```powershell
-docker compose up -d
+docker compose up -d minio kafka clickhouse prometheus grafana
 ```
 Service endpoints:
 - **MinIO S3 Console:** [http://localhost:9001](http://localhost:9001) (`minioadmin` / `minioadmin`)
@@ -244,18 +255,38 @@ Service endpoints:
 - **Prometheus:** [http://localhost:9090](http://localhost:9090)
 - **Grafana:** [http://localhost:3000](http://localhost:3000) (`admin` / `admin`)
 
-### 2. Run the Complete Automated Test Suite (52 Tests)
+### 2. Launch the 10 Active Local Probes (Continuous Mode B)
+Starts the 10 local probe containers in the background, each monitoring its balanced 15 assigned targets:
+```powershell
+docker compose up -d probe-1 probe-2 probe-3 probe-4 probe-5 probe-6 probe-7 probe-8 probe-9 probe-10
+```
+To stop the probe fleet:
+```powershell
+docker compose stop probe-1 probe-2 probe-3 probe-4 probe-5 probe-6 probe-7 probe-8 probe-9 probe-10
+```
+
+### 3. Run the Telemetry Ingestion Pipeline & Web UI
+Consumes real-time Kafka telemetry, writes Parquet batches to MinIO, streams rows to ClickHouse, and serves the interactive dashboard:
+```powershell
+python scripts/run_telemetry_pipeline.py
+```
+Open **[http://localhost:8050](http://localhost:8050)** in your browser to access the **NetScope Telemetry Explorer**:
+- Live time series with $p_{95}$ and $p_{99}$ latency thresholds.
+- Per-probe and per-target latency metrics.
+- Fleet health breakdown across all 10 local probes and 50 targets.
+
+### 4. Run the Complete Automated Test Suite (52 Tests)
 ```powershell
 python -m pytest probe/tests/ -v -m "not integration"
 ```
 
-### 3. Run the Master 18-Step End-to-End Presentation
-Execute the unified demo script that steps through every capability built across all 9 weeks:
+### 5. Run the Master 18-Step End-to-End Presentation
+Execute the unified presentation script that steps through every capability built across all 9 weeks:
 ```powershell
 python scripts/final_presentation.py
 ```
 
-### 4. Run Individual Phase Demos & Benchmarks
+### 6. Run Individual Phase Demos & Benchmarks
 - **Storage Shootout (Parquet vs CSV vs JSONL):**
   ```powershell
   python benchmarks/storage_shootout.py
@@ -287,7 +318,21 @@ python scripts/final_presentation.py
 
 ---
 
-## 7. Team Contributions & Resume Impact
+## 7. System Documentation Directory
+
+Comprehensive, in-depth architectural and code documentation is maintained in [`docs/`](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs):
+
+1. **[docs/ARCHITECTURE.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/ARCHITECTURE.md)** — Architectural design, decoupled event-driven data flow, event-time semantics, watermarks, and Lakehouse dual-tier storage.
+2. **[docs/PROBE_ENGINE.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/PROBE_ENGINE.md)** — Active probe architecture, protocol timing phases (DNS, TCP, TLS, TTFB), payload limits, error classification, and target sharding formula.
+3. **[docs/INGESTION_STREAMING.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/INGESTION_STREAMING.md)** — Kafka KRaft setup, partition keys, at-least-once semantics, Flink streaming simulator, watermarking, deduplication, and tumbling/sliding window analytics.
+4. **[docs/STORAGE_WAREHOUSE.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/STORAGE_WAREHOUSE.md)** — MinIO S3 data lake Hive partitioning, ClickHouse columnar schema design (`DoubleDelta`, `ZSTD`, `LowCardinality`), Materialized Views, and 100K benchmark performance.
+5. **[docs/ANOMALY_INCIDENTS.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/ANOMALY_INCIDENTS.md)** — Statistical anomaly detection (rolling Welford algorithm, Z-scores), 4-state incident FSM, chaos injection server, geographic correlation, and traceroute path hash analysis.
+6. **[docs/OBSERVABILITY_OPERATIONS.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/OBSERVABILITY_OPERATIONS.md)** — Prometheus metrics exporter, Grafana dashboards, NetScope Web UI (`:8050`), fleet runbook, and fault tolerance verification.
+7. **[docs/API_REFERENCE.md](file:///c:/Users/VEER/OneDrive/Documents/Veer/code/DE%20Project/docs/API_REFERENCE.md)** — Complete module, class, method, and signature reference for all Python packages in the project.
+
+---
+
+## 8. Team Contributions & Resume Impact
 
 ### MEMBER_1: Network Probing, Ingestion & Routing
 - Engineered a multi-protocol active measurement probe in Python measuring DNS, TCP connect, TLS handshake, and HTTP TTFB with socket-level timeout guards and response payload caps.
