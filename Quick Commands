@@ -1,0 +1,38 @@
+Mode B: Run all 10 probes continuously in background
+docker compose up -d probe-1 probe-2 probe-3 probe-4 probe-5 probe-6 probe-7 probe-8 probe-9 probe-10
+
+Stop all 10 probes
+docker compose stop probe-1 probe-2 probe-3 probe-4 probe-5 probe-6 probe-7 probe-8 probe-9 probe-10
+
+Start the Docker infrastructure & probes:
+docker compose up -d
+
+Start the real-time pipeline, Grafana metrics feed, and Web UI:
+python scripts/run_telemetry_pipeline.py
+
+1. Run the Complete 18-Step Master Presentation
+This orchestrator steps through every phase of the project from schema validation to the storage shootout:
+python scripts/final_presentation.py
+
+2. Run the Full Test Suite (52 Tests)
+python -m pytest probe/tests/ -v -m "not integration"
+
+3. Run Individual Deep-Dive Demos
+Storage Format Shootout:
+python benchmarks/storage_shootout.py
+
+Kafka Ingestion Stress Test:
+python benchmarks/stress_test.py
+
+ClickHouse 100K Benchmark & Historical Queries:
+python warehouse/queries/benchmark_queries.py
+
+Live Outage & Incident Lifecycle Demo:
+python scripts/demo_week6_controlled_outage.py
+
+Geographic Degradation & Traceroute Demo:
+python scripts/demo_week7_geographic_traceroute.py
+
+Fault Tolerance Suite (FT-1 to FT-5):
+python scripts/test_014_fault_tolerance.py
+

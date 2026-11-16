@@ -58,3 +58,7 @@ docker_volumes/
 # Logs
 *.log
 logs/
+
+# Our files
+.txt
+.pdf
