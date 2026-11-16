@@ -21,6 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY schemas/     ./schemas/
 COPY probe/       ./probe/
 COPY targets/     ./targets/
+COPY ingestion/   ./ingestion/
 
 # Default environment (overridden by docker-compose or cloud deployment)
 ENV PROBE_ID=local-01

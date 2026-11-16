@@ -190,72 +190,216 @@ services:
       "
 
   # -------------------------------------------------------------------------
-  # Probe — India identity
-  # Three identical service definitions, only PROBE_ID differs.
-  # In production, each would run on a separate cloud VM.
+  # Local Probes: probe-1 through probe-10
+  # Running locally on host via Docker containers.
+  # Each probe monitors exactly 15 targets, and no target appears on > 3 probes.
   # -------------------------------------------------------------------------
-  probe-india:
-    build:
-      context: .
-      dockerfile: probe/Dockerfile
-    container_name: netscope-probe-india
+  probe-1:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-01
     networks: [netscope]
     environment:
-      PROBE_ID:       india-01
+      PROBE_ID: probe-01
       PROBE_INTERVAL: "30"
-      PROBE_OUTPUT:   /output/india-01.jsonl
-      MINIO_ENDPOINT:    http://minio:9000
-      MINIO_ACCESS_KEY:  minioadmin
-      MINIO_SECRET_KEY:  minioadmin
-      MINIO_BUCKET:      netscope-raw
+      PROBE_OUTPUT: /output/probe-01.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
     volumes:
       - ./results:/output
       - ./targets:/app/targets:ro
     depends_on:
-      minio:
-        condition: service_healthy
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
     restart: unless-stopped
 
-  probe-sg:
-    build:
-      context: .
-      dockerfile: probe/Dockerfile
-    container_name: netscope-probe-sg
+  probe-2:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-02
     networks: [netscope]
     environment:
-      PROBE_ID:       sg-01
+      PROBE_ID: probe-02
       PROBE_INTERVAL: "30"
-      PROBE_OUTPUT:   /output/sg-01.jsonl
-      MINIO_ENDPOINT:    http://minio:9000
-      MINIO_ACCESS_KEY:  minioadmin
-      MINIO_SECRET_KEY:  minioadmin
-      MINIO_BUCKET:      netscope-raw
+      PROBE_OUTPUT: /output/probe-02.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
     volumes:
       - ./results:/output
       - ./targets:/app/targets:ro
     depends_on:
-      minio:
-        condition: service_healthy
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
     restart: unless-stopped
 
-  probe-eu:
-    build:
-      context: .
-      dockerfile: probe/Dockerfile
-    container_name: netscope-probe-eu
+  probe-3:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-03
     networks: [netscope]
     environment:
-      PROBE_ID:       eu-01
+      PROBE_ID: probe-03
       PROBE_INTERVAL: "30"
-      PROBE_OUTPUT:   /output/eu-01.jsonl
-      MINIO_ENDPOINT:    http://minio:9000
-      MINIO_ACCESS_KEY:  minioadmin
-      MINIO_SECRET_KEY:  minioadmin
-      MINIO_BUCKET:      netscope-raw
+      PROBE_OUTPUT: /output/probe-03.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
     volumes:
       - ./results:/output
       - ./targets:/app/targets:ro
     depends_on:
-      minio:
-        condition: service_healthy
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-4:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-04
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-04
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-04.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-5:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-05
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-05
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-05.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-6:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-06
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-06
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-06.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-7:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-07
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-07
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-07.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-8:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-08
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-08
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-08.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-9:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-09
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-09
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-09.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
+    restart: unless-stopped
+
+  probe-10:
+    image: deproject-probe-india:latest
+    container_name: netscope-probe-10
+    networks: [netscope]
+    environment:
+      PROBE_ID: probe-10
+      PROBE_INTERVAL: "30"
+      PROBE_OUTPUT: /output/probe-10.jsonl
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: netscope-raw
+    volumes:
+      - ./results:/output
+      - ./targets:/app/targets:ro
+    depends_on:
+      minio: { condition: service_healthy }
+      kafka: { condition: service_healthy }
     restart: unless-stopped

@@ -202,8 +202,8 @@ def measure_target(
 # Target loader
 # ---------------------------------------------------------------------------
 
-def load_targets_from_yaml(path: str) -> list[dict]:
-    """Load enabled targets from targets.yaml."""
+def load_targets_from_yaml(path: str, probe_id: Optional[str] = None) -> list[dict]:
+    """Load enabled targets from targets.yaml, optionally filtered by probe_id."""
     try:
         import yaml
     except ImportError:
@@ -213,11 +213,14 @@ def load_targets_from_yaml(path: str) -> list[dict]:
         data = yaml.safe_load(f)
 
     all_targets = data.get("targets", [])
-    # Filter out disabled targets
+    # Filter out disabled targets and targets not assigned to this probe
     enabled = [t for t in all_targets if t.get("enabled", True)]
+    if probe_id:
+        enabled = [t for t in enabled if "probes" not in t or probe_id in t.get("probes", [])]
+
     skipped = len(all_targets) - len(enabled)
     if skipped:
-        logger.info("Skipping %d disabled targets", skipped)
+        logger.info("Skipping %d disabled/unassigned targets for probe %s", skipped, probe_id or "all")
     return enabled
 
 
@@ -371,7 +374,7 @@ def main() -> None:
     if args.target:
         targets = load_targets_from_hosts([args.target])
     elif args.targets_file:
-        targets = load_targets_from_yaml(args.targets_file)
+        targets = load_targets_from_yaml(args.targets_file, probe_id=args.probe_id)
     else:
         parser.error("Provide --target or --targets-file")
 

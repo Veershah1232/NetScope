@@ -1,148 +1,403 @@
-# targets.yaml — NetScope target list (Week 2 revision)
-#
-# Per-target config keys:
-#   id:        slug used as partition key and in file paths
-#   host:      hostname to measure
-#   scheme:    http | https
-#   path:      URL path (default /)
-#   port:      override default port
-#   timeout:   per-target timeout override in seconds (default 10)
-#   max_bytes: stop reading response after this many bytes (default 65536)
-#   enabled:   set false to skip without deleting
-#   tags:      list of labels for grouping/filtering
+# targets.yaml — NetScope Target Registry (50 Targets Distributed Across 10 Local Probes)
+# Exactly 15 targets per probe, each target assigned to exactly 3 probes (max 3).
 
 targets:
-
-  # --- Global tech / CDN ---
-  - id: github-com
-    host: github.com
-    scheme: https
-    path: /
-    tags: [global, tech, git]
-
   - id: google-com
     host: google.com
     scheme: https
     path: /
-    tags: [global, search, cdn]
+    timeout: 10
+    probes: [probe-01, probe-02, probe-03]
+    tags: ['search', 'global']
 
   - id: cloudflare-com
     host: cloudflare.com
     scheme: https
     path: /
-    tags: [global, cdn, networking]
+    timeout: 10
+    probes: [probe-04, probe-05, probe-06]
+    tags: ['cdn', 'security']
+
+  - id: one-one-one-one
+    host: one.one.one.one
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-07, probe-08, probe-09]
+    tags: ['dns', 'cloudflare']
 
   - id: wikipedia-org
     host: wikipedia.org
     scheme: https
     path: /
-    tags: [global, content]
+    timeout: 10
+    probes: [probe-10, probe-01, probe-02]
+    tags: ['content', 'global']
 
-  - id: amazon-com
-    host: amazon.com
+  - id: duckduckgo-com
+    host: duckduckgo.com
     scheme: https
     path: /
-    tags: [global, ecommerce, aws]
+    timeout: 10
+    probes: [probe-03, probe-04, probe-05]
+    tags: ['search', 'privacy']
 
-  - id: stackoverflow-com
-    host: stackoverflow.com
+  - id: github-com
+    host: github.com
     scheme: https
     path: /
-    tags: [global, dev]
-
-  # --- APIs ---
-  - id: httpbin-org
-    host: httpbin.org
-    scheme: https
-    path: /get
-    tags: [api, test]
+    timeout: 10
+    probes: [probe-06, probe-07, probe-08]
+    tags: ['developer', 'git']
 
   - id: api-github-com
     host: api.github.com
     scheme: https
     path: /
-    tags: [api, github]
+    timeout: 10
+    probes: [probe-09, probe-10, probe-01]
+    tags: ['api', 'developer']
 
-  # --- CDN / DNS benchmarks ---
-  - id: one-one-one-one
-    host: one.one.one.one
+  - id: gitlab-com
+    host: gitlab.com
     scheme: https
     path: /
-    tags: [dns, cdn, cloudflare]
+    timeout: 10
+    probes: [probe-02, probe-03, probe-04]
+    tags: ['developer', 'devops']
 
-  # dns.google has consistent TLS issues from India — disabled pending investigation
-  - id: dns-google-com
-    host: dns.google
+  - id: stackoverflow-com
+    host: stackoverflow.com
     scheme: https
     path: /
-    timeout: 15
-    enabled: false
-    tags: [dns, google]
-    notes: "TLS_TIMEOUT observed consistently from india-01. Re-enable after investigation."
+    timeout: 10
+    probes: [probe-05, probe-06, probe-07]
+    tags: ['developer', 'community']
 
-  # --- Indian websites ---
-  - id: irctc-co-in
-    host: www.irctc.co.in
+  - id: pypi-org
+    host: pypi.org
     scheme: https
     path: /
-    timeout: 20          # IRCTC is slow; allow extra time
-    max_bytes: 32768     # cap response read
-    tags: [india, government, rail]
-    notes: "HTTP_TIMEOUT at 10s. Increased to 20s."
+    timeout: 10
+    probes: [probe-08, probe-09, probe-10]
+    tags: ['developer', 'python']
 
-  - id: flipkart-com
-    host: www.flipkart.com
+  - id: registry-npmjs-org
+    host: registry.npmjs.org
     scheme: https
     path: /
-    max_bytes: 65536     # was downloading ~1.1 MB; cap early
-    tags: [india, ecommerce]
+    timeout: 10
+    probes: [probe-01, probe-02, probe-03]
+    tags: ['developer', 'javascript']
 
-  - id: myntra-com
-    host: www.myntra.com
+  - id: hub-docker-com
+    host: hub.docker.com
     scheme: https
     path: /
-    max_bytes: 65536
-    tags: [india, ecommerce]
+    timeout: 10
+    probes: [probe-04, probe-05, probe-06]
+    tags: ['developer', 'containers']
+
+  - id: aws-amazon-com
+    host: aws.amazon.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-07, probe-08, probe-09]
+    tags: ['cloud', 'infrastructure']
+
+  - id: digitalocean-com
+    host: digitalocean.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-10, probe-01, probe-02]
+    tags: ['cloud', 'infrastructure']
+
+  - id: huggingface-co
+    host: huggingface.co
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-03, probe-04, probe-05]
+    tags: ['ai', 'developer']
+
+  - id: httpbin-org
+    host: httpbin.org
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-06, probe-07, probe-08]
+    tags: ['api', 'testing']
+
+  - id: amazon-com
+    host: amazon.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-09, probe-10, probe-01]
+    tags: ['ecommerce', 'global']
+
+  - id: microsoft-com
+    host: microsoft.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-02, probe-03, probe-04]
+    tags: ['tech', 'global']
+
+  - id: apple-com
+    host: apple.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-05, probe-06, probe-07]
+    tags: ['tech', 'global']
+
+  - id: netflix-com
+    host: netflix.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-08, probe-09, probe-10]
+    tags: ['media', 'streaming']
+
+  - id: spotify-com
+    host: spotify.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-01, probe-02, probe-03]
+    tags: ['media', 'audio']
+
+  - id: reddit-com
+    host: reddit.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-04, probe-05, probe-06]
+    tags: ['social', 'community']
+
+  - id: linkedin-com
+    host: linkedin.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-07, probe-08, probe-09]
+    tags: ['social', 'professional']
+
+  - id: bbc-com
+    host: bbc.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-10, probe-01, probe-02]
+    tags: ['news', 'media']
+
+  - id: cnn-com
+    host: cnn.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-03, probe-04, probe-05]
+    tags: ['news', 'media']
+
+  - id: nytimes-com
+    host: nytimes.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-06, probe-07, probe-08]
+    tags: ['news', 'media']
 
   - id: indiatimes-com
     host: www.indiatimes.com
     scheme: https
     path: /
-    max_bytes: 65536
-    tags: [india, media]
+    timeout: 10
+    probes: [probe-09, probe-10, probe-01]
+    tags: ['news', 'regional']
 
-  - id: iitb-ac-in
-    host: www.iitb.ac.in
-    scheme: https
-    path: /
-    tags: [india, university]
-
-  - id: iitd-ac-in
-    host: home.iitd.ac.in
-    scheme: https
-    path: /
-    tags: [india, university]
-
-  # --- University / Academic ---
   - id: mit-edu
     host: www.mit.edu
     scheme: https
     path: /
-    tags: [university, us]
+    timeout: 10
+    probes: [probe-02, probe-03, probe-04]
+    tags: ['university', 'research']
 
   - id: arxiv-org
     host: arxiv.org
     scheme: https
     path: /
-    tags: [academic, research]
+    timeout: 10
+    probes: [probe-05, probe-06, probe-07]
+    tags: ['academic', 'research']
 
-  # --- Our controlled test endpoint ---
-  # Inject failures here for Week 6 demo
-  - id: netscope-ctrl
-    host: netscope-ctrl   # Docker service name, resolved inside compose network
-    scheme: http
-    path: /health
-    port: 8080
-    enabled: false        # enable when controlled server is running
-    tags: [controlled, test, local]
-    notes: "Our own controlled endpoint for failure injection (Week 6)."
+  - id: iitb-ac-in
+    host: www.iitb.ac.in
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-08, probe-09, probe-10]
+    tags: ['university', 'india']
+
+  - id: iitd-ac-in
+    host: home.iitd.ac.in
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-01, probe-02, probe-03]
+    tags: ['university', 'india']
+
+  - id: flipkart-com
+    host: www.flipkart.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-04, probe-05, probe-06]
+    tags: ['ecommerce', 'india']
+
+  - id: irctc-co-in
+    host: www.irctc.co.in
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-07, probe-08, probe-09]
+    tags: ['government', 'india']
+
+  - id: myntra-com
+    host: www.myntra.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-10, probe-01, probe-02]
+    tags: ['ecommerce', 'india']
+
+  - id: yahoo-com
+    host: yahoo.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-03, probe-04, probe-05]
+    tags: ['portal', 'search']
+
+  - id: bing-com
+    host: bing.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-06, probe-07, probe-08]
+    tags: ['search', 'microsoft']
+
+  - id: twitch-tv
+    host: twitch.tv
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-09, probe-10, probe-01]
+    tags: ['streaming', 'gaming']
+
+  - id: dropbox-com
+    host: dropbox.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-02, probe-03, probe-04]
+    tags: ['storage', 'cloud']
+
+  - id: zoom-us
+    host: zoom.us
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-05, probe-06, probe-07]
+    tags: ['conferencing', 'video']
+
+  - id: slack-com
+    host: slack.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-08, probe-09, probe-10]
+    tags: ['collaboration', 'chat']
+
+  - id: salesforce-com
+    host: salesforce.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-01, probe-02, probe-03]
+    tags: ['enterprise', 'crm']
+
+  - id: adobe-com
+    host: adobe.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-04, probe-05, probe-06]
+    tags: ['design', 'creative']
+
+  - id: quora-com
+    host: quora.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-07, probe-08, probe-09]
+    tags: ['community', 'qa']
+
+  - id: medium-com
+    host: medium.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-10, probe-01, probe-02]
+    tags: ['publishing', 'blog']
+
+  - id: vimeo-com
+    host: vimeo.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-03, probe-04, probe-05]
+    tags: ['video', 'media']
+
+  - id: soundcloud-com
+    host: soundcloud.com
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-06, probe-07, probe-08]
+    tags: ['audio', 'music']
+
+  - id: archive-org
+    host: archive.org
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-09, probe-10, probe-01]
+    tags: ['history', 'content']
+
+  - id: kernel-org
+    host: kernel.org
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-02, probe-03, probe-04]
+    tags: ['linux', 'os']
+
+  - id: python-org
+    host: python.org
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-05, probe-06, probe-07]
+    tags: ['python', 'org']
+
+  - id: gnu-org
+    host: gnu.org
+    scheme: https
+    path: /
+    timeout: 10
+    probes: [probe-08, probe-09, probe-10]
+    tags: ['free-software', 'foundation']
